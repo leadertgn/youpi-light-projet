@@ -1,12 +1,18 @@
 :root {
     /* Couleurs */
-    --primary-color: #007bff; /* Bleu pour les accents */
-    --secondary-color: #6c757d; /* Gris pour les textes secondaires */
-    --background-color: #f8f9fa; /* Arrière-plan général */
-    --sidebar-bg-color: #e9ecef; /* Arrière-plan de la barre latérale */
-    --text-color: #212529; /* Texte principal */
-    --border-color: #ced4da; /* Bordures */
-    --shadow-color: rgba(0, 0, 0, 0.1); /* Ombre légère */
+    --primary-color: #0077b6; /* Un bleu plus profond et élégant */
+    --secondary-color: #495057; /* Gris anthracite pour les textes secondaires */
+    --background-color: #f4f7f9; /* Un arrière-plan gris très clair pour la profondeur */
+    --sidebar-bg-color: #e9ecef; /* Un gris clair pour la barre latérale */
+    --text-color: #212529; /* Noir pour le texte principal */
+    --card-bg-color: #ffffff; /* Couleur de fond des cartes */
+    --border-color: #dee2e6; /* Bordures plus claires */
+    --shadow-color: rgba(0, 0, 0, 0.08); /* Ombre plus visible mais subtile */
+    
+    /* Couleurs d'état (nouvelles variables pour la cohérence) */
+    --success-color: #198754;
+    --error-color: #dc3545;
+    --warning-color: #ffc107;
 
     /* Typographie */
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -28,6 +34,7 @@ html, body {
     line-height: 1.6;
 }
 
+/* --- Styles de typographie --- */
 h1 {
     font-size: 1.5rem;
     margin: 0;
@@ -36,12 +43,14 @@ h1 {
 
 h2 {
     text-align: center;
-    font-size: 2rem;
-    font-weight: 400;
+    font-size: 2.2rem;
+    font-weight: 300;
     color: var(--primary-color);
     margin-top: 0;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
+
+/* --- Styles des éléments principaux --- */
 
 /* En-tête */
 header {
@@ -112,12 +121,104 @@ header {
     padding: 2rem;
 }
 
-/* ... (le reste de ton code CSS) ... */
+/* --- Styles des composants --- */
+.card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background-color: var(--card-bg-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
 
-/* --- Styles du menu burger --- */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px var(--shadow-color);
+}
 
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: #005f99; /* Une teinte plus foncée au survol */
+    transform: translateY(-2px); /* Un léger effet de pression */
+}
+
+button:active {
+    transform: translateY(0); /* L'effet de "clic" */
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* --- Feedback visuel & chargement --- */
+
+/* Styles pour les messages de retour (succès/erreur) */
+.feedback-message {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-height: 44px; /* Hauteur minimale fixe */
+    box-sizing: border-box;
+    visibility: hidden; /* Cache l'élément sans le retirer du flux */
+    transition: all 0.3s ease;
+}
+
+.feedback-message.visible {
+    visibility: visible; /* Rend le message visible */
+}
+
+.feedback-message.success {
+    background-color: #d1e7dd;
+    color: var(--success-color);
+}
+
+.feedback-message.error {
+    background-color: #f8d7da;
+    color: var(--error-color);
+}
+
+/* Styles pour les boutons en cours de chargement */
+button.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    pointer-events: none; /* Désactive le clic pendant le chargement */
+    opacity: 0.7; /* Donne une indication visuelle que le bouton est inactif */
+}
+
+/* Animation du spinner */
+.spinner {
+    width: 1em;
+    height: 1em;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Styles du menu burger et responsivité --- */
 .menu-toggle {
-    display: none; /* Cache le bouton par défaut */
+    display: none;
     width: 40px;
     height: 40px;
     background-color: transparent;
@@ -136,53 +237,50 @@ header {
     background-color: var(--text-color);
     border-radius: 2px;
     position: absolute;
-    left: 50%; /* Centre horizontalement */
-    transform: translateX(-50%); /* Ajuste le centrage */
+    left: 50%;
+    transform: translateX(-50%);
     transition: transform 0.3s ease, background-color 0.3s ease, top 0.3s ease, left 0.3s ease;
 }
 
 .burger-icon {
     top: 50%;
-    transform: translateY(-50%) translateX(-50%); /* Centre parfaitement le conteneur */
+    transform: translateY(-50%) translateX(-50%);
 }
 
 .burger-icon::before {
     content: '';
-    top: -8px; /* Positionne la barre supérieure */
+    top: -8px;
 }
 
 .burger-icon::after {
     content: '';
-    top: 8px; /* Positionne la barre inférieure */
+    top: 8px;
 }
 
-/* --- Styles du menu ouvert (en forme de croix) --- */
 .menu-toggle[aria-expanded="true"] .burger-icon {
-    background-color: transparent; /* Cache la barre du milieu */
+    background-color: transparent;
 }
 
 .menu-toggle[aria-expanded="true"] .burger-icon::before {
     top: 0;
-    transform: translateX(-50%) rotate(45deg); /* Fait pivoter la barre supérieure */
+    transform: translateX(-50%) rotate(45deg);
 }
 
 .menu-toggle[aria-expanded="true"] .burger-icon::after {
     top: 0;
-    transform: translateX(-50%) rotate(-45deg); /* Fait pivoter la barre inférieure */
+    transform: translateX(-50%) rotate(-45deg);
 }
 
-/* Media query pour afficher le menu burger sur mobile */
 @media (max-width: 600px) {
     .menu-toggle {
         display: block;
     }
 }
 
-/* Responsivité pour les mobiles */
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
-        top: 72px; /* Sous le header */
+        top: 72px;
         left: 0;
         height: calc(100vh - 72px);
         transform: translateX(-100%);

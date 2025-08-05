@@ -1,30 +1,37 @@
 // --- Définition des URLs centralisées ---
 const apiUrls = {
-  getDate: () => "/getDate",
-  getTime: () => "/getTime"
+    getDate: () => "/getDate",
+    getTime: () => "/getTime",
+    getWifiStatus: () => "/getWifiStatus"
 };
+
+// --- Fonctions utilitaires pour l'interface ---
+
+// 💡 Fonction utilitaire pour ajouter un zéro si nécessaire
+function formatNumber(number) {
+    const num = parseInt(number, 10);
+    return num < 10 ? `0${num}` : num;
+}
 
 // --- Fonctions spécialisées pour les requêtes API ---
 const api = {
-  async getDate() {
-    const url = apiUrls.getDate();
-    const response = await fetchESP(url);
-    if (response?.data) {
-      return response.data;
+    async getTime() {
+        const url = apiUrls.getTime();
+        const response = await fetchESP(url);
+        return response?.data ?? null;
+    },
+    
+    async getDate() {
+        const url = apiUrls.getDate();
+        const response = await fetchESP(url);
+        return response?.data ?? null;
+    },
+    
+    async getWifiStatus() {
+        const url = apiUrls.getWifiStatus();
+        const response = await fetchESP(url);
+        return response?.data?.isConnected ?? null;
     }
-    console.warn("Réponse inattendue du serveur pour la date :", response);
-    return null;
-  },
-
-  async getTime() {
-    const url = apiUrls.getTime();
-    const response = await fetchESP(url);
-    if (response?.data) {
-      return response.data;
-    }
-    console.warn("Réponse inattendue du serveur pour l'heure :", response);
-    return null;
-  }
 };
 
 // --- Reste du code ---
@@ -34,98 +41,110 @@ const secondeEl = document.getElementById('seconde');
 const yearEl = document.getElementById('year');
 const monthEl = document.getElementById('month');
 const dayEl = document.getElementById('day');
+const networkStatusEl = document.getElementById('network-status');
+
+let timeUpdateInterval;
 
 document.addEventListener('DOMContentLoaded', () => {
-  acceuilInit();
+    acceuilInit();
 });
 
+// Fonction pour l'initialisation de la page
 function acceuilInit() {
-  scheduleDateUpdate(); // Lancement cyclique de la date
-  scheduleTimeUpdate(); // Lancement cyclique de l’heure
+    updateDateAndStatus();
+    scheduleTimeUpdate();
 }
 
-// ⏳ Mise à jour toutes les 12h (43_200_000 ms)
-function scheduleDateUpdate() {
-  updateDateUI().finally(() => {
-    setTimeout(scheduleDateUpdate, 43200000);
-  });
-}
-
-// ⏱️ Mise à jour toutes les secondes
-function scheduleTimeUpdate() {
-  updateTimeUI().finally(() => {
-    setTimeout(scheduleTimeUpdate, 1000);
-  });
-}
-
-// 📆 Mise à jour de l'UI de la date
-async function updateDateUI() {
+// 📆 Mise à jour de la date et du statut
+async function updateDateAndStatus() {
     const dateData = await api.getDate();
-
-    if (dateData) {
-        let { annee, mois, jour } = dateData;
-        console.log("Données reçues pour la date :", dateData);
-        
-        // 💡 On formate les valeurs pour qu'elles aient toujours deux chiffres
-        mois = formatNumber(mois);
-        jour = formatNumber(jour);
-
-        yearEl.textContent = annee ?? "--";
-        monthEl.textContent = mois ?? "--";
-        dayEl.textContent = jour ?? "--";
-    } else {
-        console.log("Aucune donnée du serveur pour la date. Affichage par défaut.");
-        yearEl.textContent = "--";
-        monthEl.textContent = "--";
-        dayEl.textContent = "--";
-    }
+    const isConnected = await api.getWifiStatus();
+    
+    updateDateUI(dateData);
+    updateNetworkStatusUI(isConnected);
 }
-// ⌚ Mise à jour de l'UI de l’heure
+
+// ⌚ Lancement de la mise à jour de l'heure
+function scheduleTimeUpdate() {
+    // Annule tout intervalle existant pour éviter les doublons
+    if (timeUpdateInterval) {
+        clearInterval(timeUpdateInterval);
+    }
+    // Met à jour l'heure immédiatement au chargement
+    updateTimeUI();
+    // Met à jour l'heure toutes les 5 secondes (5000 ms)
+    timeUpdateInterval = setInterval(updateTimeUI, 5000);
+}
+
+// ⌚ Mise à jour de l'UI de l'heure
 async function updateTimeUI() {
     const timeData = await api.getTime();
-
+    
     if (timeData) {
         let { heure, minute, seconde } = timeData;
-        console.log("Données reçues pour l’heure :", timeData);
-        
-        // 💡 On formate les valeurs pour qu'elles aient toujours deux chiffres
-        heure = formatNumber(heure);
-        minute = formatNumber(minute);
-        seconde = formatNumber(seconde);
-
-        hourEl.textContent = heure ?? "--";
-        minuteEl.textContent = minute ?? "--";
-        secondeEl.textContent = seconde ?? "--";
+        hourEl.textContent = formatNumber(heure);
+        minuteEl.textContent = formatNumber(minute);
+        secondeEl.textContent = formatNumber(seconde);
     } else {
-        console.log("Aucune donnée du serveur pour l'heure. Affichage par défaut.");
+        // En cas d'erreur, on affiche un message clair
+        console.error("Échec de la récupération de l'heure depuis le système.");
         hourEl.textContent = "--";
         minuteEl.textContent = "--";
         secondeEl.textContent = "--";
     }
 }
 
-// 💡 Fonction utilitaire pour ajouter un zéro si nécessaire
-function formatNumber(number) {
-    // Si le nombre est un chiffre, on ajoute un "0" devant
-    return number < 10 ? `0${number}` : number;
+// 📆 Mise à jour de l'UI de la date
+function updateDateUI(dateData) {
+    if (dateData) {
+        const { annee, mois, jour } = dateData;
+        yearEl.textContent = annee;
+        monthEl.textContent = formatNumber(mois);
+        dayEl.textContent = formatNumber(jour);
+    } else {
+        console.error("Aucune donnée du serveur pour la date.");
+        yearEl.textContent = "--";
+        monthEl.textContent = "--";
+        dayEl.textContent = "--";
+    }
+}
+
+// 🔌 Mise à jour de l'UI du statut réseau
+function updateNetworkStatusUI(isConnected) {
+    const statusTextEl = networkStatusEl.querySelector('strong');
+    
+    if (isConnected === true) {
+        statusTextEl.textContent = "Connecté";
+        statusTextEl.classList.remove('disconnected');
+        statusTextEl.classList.add('connected');
+    } else if (isConnected === false) {
+        statusTextEl.textContent = "Déconnecté";
+        statusTextEl.classList.remove('connected');
+        statusTextEl.classList.add('disconnected');
+    } else {
+        statusTextEl.textContent = "Indisponible";
+        statusTextEl.classList.remove('connected', 'disconnected');
+    }
 }
 
 // 🔌 Requête générique vers l’ESP
 async function fetchESP(url, data = null) {
-  const options = data
-    ? {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      }
-    : { method: "GET" };
+    const options = data
+        ? {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          }
+        : { method: "GET" };
 
-  try {
-    const response = await fetch(url, options);
-    if (!response.ok) throw new Error(`Erreur HTTP! ${response.status}`);
-    return await response.json();
-  } catch (err) {
-    console.error(`Erreur fetchESP (${url}):`, err);
-    return null;
-  }
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP! ${response.status}`);
+        }
+        return await response.json();
+    } catch (err) {
+        console.error(`Erreur fetchESP (${url}):`, err);
+        return null;
+    }
 }

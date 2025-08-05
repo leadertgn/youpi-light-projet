@@ -64,53 +64,61 @@
                 </ul>
             </nav>
         </aside>
-        <main class="content">
-            <h2>Mode calendrier</h2>
-            <div class="calendar-controls">
-                <div class="card">
-                    <div class="form-group">
-                        <label for="sorties">Sélectionnez la sortie :</label>
-                        <select name="sortie" id="sorties">
-                            <option value="1" selected>Sortie 1</option>
-                            <option value="2">Sortie 2</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="taches">Sélectionnez la tâche :</label>
-                        <select name="tache" id="taches">
-                            <option value="1">Tâche 1</option>
-                            <option value="2">Tâche 2</option>
-                        </select>
-                    </div>
-                </div>
+<main class="content">
+    <h2>Mode calendrier</h2>
+    <div class="calendar-controls">
+        <div class="card">
+            <div class="form-group">
+                <label for="sorties">Sélectionnez la sortie :</label>
+                <select name="sortie" id="sorties">
+                    <option value="1" selected>Sortie 1</option>
+                    <option value="2">Sortie 2</option>
+                </select>
             </div>
-            <form id="sortie-form" class="form-card">
-                <fieldset class="form-fieldset">
-                    <legend>Allumage</legend>
-                    <label for="onTime">Heure -- Minute :</label>
-                    <input type="time" id="onTime" required>
-                </fieldset>
-                <fieldset class="form-fieldset">
-                    <legend>Extinction</legend>
-                    <label for="offTime">Heure -- Minute : </label>
-                    <input type="time" id="offTime" required>
-                </fieldset>
-                <button type="submit">Envoyer le réglage</button>
-            </form>
-            <section class="form-card">
-                <form id="save-form">
-                    <fieldset class="form-fieldset">
-                        <legend>Sauvegarde</legend>
-                        <label for="btn-save" class="checkbox-label">
-                            <span id="choice_state">---</span> la sauvegarde après coupure de <span id="selected-output">---</span>
-                            <input type="checkbox" id="btn-save">
-                            <span class="custom-checkbox"></span>
-                        </label>
-                        <button type="submit" id="sendChoice">Appliquer le changement</button>
-                    </fieldset>
-                </form>
-            </section>
-        </main>
+            <div class="form-group">
+                <label for="taches">Sélectionnez la tâche :</label>
+                <select name="tache" id="taches">
+                    <option value="1">Tâche 1</option>
+                    <option value="2">Tâche 2</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <section class="form-card">
+        <form id="sortie-form">
+            <fieldset class="form-fieldset">
+                <legend>Allumage</legend>
+                <label for="onTime">Heure -- Minute :</label>
+                <input type="time" id="onTime" required>
+            </fieldset>
+            <fieldset class="form-fieldset">
+                <legend>Extinction</legend>
+                <label for="offTime">Heure -- Minute : </label>
+                <input type="time" id="offTime" required>
+            </fieldset>
+            <button type="submit" id="send-calendar-btn">Envoyer le réglage</button>
+        </form>
+        <div id="calendar-message" class="feedback-message"></div>
+    </section>
+
+
+    <section class="form-card">
+        <form id="save-form">
+            <fieldset class="form-fieldset">
+                <legend>Sauvegarde</legend>
+                <label for="btn-save" class="checkbox-label">
+                    <span id="choice_state">---</span> la sauvegarde après coupure de <span id="selected-output">---</span>
+                    <input type="checkbox" id="btn-save">
+                    <span class="custom-checkbox"></span>
+                </label>
+                <button type="submit" id="send-save-btn">Appliquer le changement</button>
+            </fieldset>
+        </form>
+        <div id="save-message" class="feedback-message"></div>
+    </section>
+
+</main>
     </div>
     <script src="../js/calendrier.js"></script>
     <script src="../js/nav.js"></script>

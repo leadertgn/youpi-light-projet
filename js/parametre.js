@@ -1,36 +1,46 @@
 // --- Définition des URLs centralisées ---
 const apiUrls = {
-  setWifi: () => "/setInfos-wifi",
-  setTime: () => "/setTime"
+    setWifi: () => "/setInfos-wifi",
+    setTime: () => "/setTime"
 };
+
+// --- Fonctions utilitaires pour l'interface ---
+function showFeedbackMessage(element, message, type = 'success') {
+    element.textContent = message;
+    element.className = `feedback-message ${type}`;
+    element.style.display = 'block';
+    // Masque le message après 5 secondes
+    setTimeout(() => {
+        element.style.display = 'none';
+    }, 5000);
+}
+
+function showLoadingState(button, isLoading) {
+    if (isLoading) {
+        button.disabled = true;
+        button.classList.add('loading');
+        button.innerHTML = '<span class="spinner"></span> Chargement...';
+    } else {
+        button.disabled = false;
+        button.classList.remove('loading');
+    }
+}
 
 // --- Fonctions spécialisées pour les requêtes API ---
 const api = {
-  async setWifiConfig(ssid, password) {
-    const url = apiUrls.setWifi();
-    const configData = {
-      ssid: ssid,
-      password: password
-    };
-    const response = await fetchESP(url, configData);
-    if (response?.data) {
-      console.log("Données envoyées pour le Wi-Fi : ", response.data);
-      return response.data;
-    }
-    console.warn("Réponse inattendue du serveur pour la configuration Wi-Fi :", response);
-    return null;
-  },
+    async setWifiConfig(ssid, password) {
+        const url = apiUrls.setWifi();
+        const configData = {
+            ssid: ssid,
+            password: password
+        };
+        return await fetchESP(url, configData);
+    },
 
-  async setTime(timeData) {
-    const url = apiUrls.setTime();
-    const response = await fetchESP(url, timeData);
-    if (response?.data) {
-      console.log("Données envoyées pour l'heure : ", response.data);
-      return response.data;
+    async setTime(timeData) {
+        const url = apiUrls.setTime();
+        return await fetchESP(url, timeData);
     }
-    console.warn("Réponse inattendue du serveur pour l'heure :", response);
-    return null;
-  }
 };
 
 const ssidEl = document.getElementById("ssid");
@@ -42,123 +52,132 @@ const wifiBtn = document.getElementById("wifi-btn-modify");
 const timeBtn = document.getElementById("time-btn-modify");
 const wifiSection = document.getElementById('wifiSection');
 const timeSection = document.getElementById('timeSection');
-const passwordToggle = document.getElementById('password-toggle'); // 💡 Sélectionne l'icône
+const passwordToggle = document.getElementById('password-toggle');
+const wifiMessageEl = document.getElementById('wifi-message');
+const timeMessageEl = document.getElementById('time-message');
 const modalSections = document.querySelectorAll('.modal');
 
-if (!ssidEl || !passwordEl || !timeEl || !wifiEl || !wifiBtn || !timeBtn || !timeSection || !wifiSection || !passwordToggle) {
-  console.error("Un ou plusieurs éléments n'existent pas dans le DOM. Le script ne peut pas continuer.");
+if (!ssidEl || !passwordEl || !timeEl || !wifiEl || !hourFormEl || !wifiBtn || !timeBtn || !timeSection || !wifiSection || !passwordToggle) {
+    console.error("Un ou plusieurs éléments n'existent pas dans le DOM. Le script ne peut pas continuer.");
 } else {
-  // ⛱️ Masquer tout au départ
-  modalSections.forEach(section => section.style.display = "none");
+    // ⛱️ Masquer tout au départ
+    modalSections.forEach(section => section.style.display = "none");
 
-  // Fonction utilitaire pour afficher une modale et cacher les autres
-  function showModal(modalToShow) {
-    modalSections.forEach(section => {
-      section.style.display = "none";
+    // Fonction utilitaire pour afficher une modale et cacher les autres
+    function showModal(modalToShow) {
+        modalSections.forEach(section => {
+            section.style.display = "none";
+            // Cache les messages précédents
+            const messageEl = section.querySelector('.feedback-message');
+            if (messageEl) messageEl.style.display = 'none';
+        });
+        modalToShow.style.display = "block";
+    }
+
+    // 📌 Bouton Wi-Fi
+    wifiBtn.addEventListener("click", () => {
+        showModal(wifiSection);
     });
-    modalToShow.style.display = "block";
-  }
 
-  // 📌 Bouton Wi-Fi
-  wifiBtn.addEventListener("click", () => {
-    showModal(wifiSection);
-  });
+    // 📌 Bouton Heure
+    timeBtn.addEventListener("click", () => {
+        showModal(timeSection);
+    });
+    
+    // 💡 Fonctionnalité d'affichage/masquage du mot de passe
+    passwordToggle.addEventListener("click", () => {
+        const type = passwordEl.getAttribute("type") === "password" ? "text" : "password";
+        passwordEl.setAttribute("type", type);
+        passwordToggle.classList.toggle("visible");
+    });
 
-  // 📌 Bouton Heure
-  timeBtn.addEventListener("click", () => {
-    showModal(timeSection);
-  });
-  
-  // 💡 Fonctionnalité d'affichage/masquage du mot de passe
-  passwordToggle.addEventListener("click", () => {
-    // Vérifie le type actuel du champ de mot de passe
-    const type = passwordEl.getAttribute("type") === "password" ? "text" : "password";
-    passwordEl.setAttribute("type", type);
-    
-    // Ajoute ou retire la classe 'visible' pour changer l'icône
-    passwordToggle.classList.toggle("visible");
-  });
+    // 📡 Événement sur la soumission du formulaire Wi-Fi
+    wifiEl.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const button = e.submitter;
+        const ssid = ssidEl.value.trim();
+        const password = passwordEl.value.trim();
 
-  // 📡 Événement sur la soumission du formulaire Wi-Fi
-  wifiEl.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const ssid = ssidEl.value.trim();
-    const password = passwordEl.value.trim();
+        if (password.length < 8) {
+            showFeedbackMessage(wifiMessageEl, "Le mot de passe doit avoir au moins 8 caractères.", 'error');
+            return;
+        }
 
-    if (password.length < 8) {
-      console.error("Le mot de passe doit avoir au moins 8 caractères !");
-      return;
-    }
+        if (ssid === "" || password === "") {
+            showFeedbackMessage(wifiMessageEl, "La configuration est vide !", 'error');
+            return;
+        }
 
-    if (ssid === "" || password === "") {
-      console.error("La configuration est vide !");
-      return;
-    }
+        showLoadingState(button, true);
+        const responseData = await api.setWifiConfig(ssid, password);
+        showLoadingState(button, false);
+        
+        if (responseData && responseData.success) {
+            showFeedbackMessage(wifiMessageEl, "Configuration Wi-Fi mise à jour avec succès !", 'success');
+            wifiEl.reset();
+        } else {
+            showFeedbackMessage(wifiMessageEl, "Échec de l'envoi de la configuration Wi-Fi.", 'error');
+        }
+    });
     
-    const responseData = await api.setWifiConfig(ssid, password);
-    
-    if (!responseData) {
-      console.error("Échec de l'envoi de la configuration Wi-Fi.");
-    }
-    
-    wifiEl.reset();
-    wifiSection.style.display = "none";
-  });
-  
-  // ⏰ Événement sur la soumission du formulaire Heure
-  hourFormEl.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const timeData = parseInput(timeEl);
+    // ⏰ Événement sur la soumission du formulaire Heure
+    hourFormEl.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const button = e.submitter;
+        const timeData = parseInput(timeEl);
 
-    if (!timeData) {
-      console.error("Données de temps invalides. Le script ne peut pas continuer.");
-      return;
-    }
-    
-    const responseData = await api.setTime(timeData);
-    
-    if (!responseData) {
-      console.error("Échec de l'envoi de la configuration de l'heure.");
-    }
-    
-    hourFormEl.reset();
-    timeSection.style.display = "none";
-  });
+        if (!timeData) {
+            showFeedbackMessage(timeMessageEl, "Données de temps invalides.", 'error');
+            return;
+        }
+        
+        showLoadingState(button, true);
+        const responseData = await api.setTime(timeData);
+        showLoadingState(button, false);
+        
+        if (responseData && responseData.success) {
+            showFeedbackMessage(timeMessageEl, "Heure réglée avec succès !", 'success');
+            hourFormEl.reset();
+        } else {
+            showFeedbackMessage(timeMessageEl, "Échec de l'envoi de la configuration de l'heure.", 'error');
+        }
+    });
 }
 
 function parseInput(input) {
-  if (!input || input.value.trim() === "") {
-    console.error("Données invalides pour être parsé");
-    return null;
-  }
-  const [hour, minute] = input.value.trim().split(':').map(n => parseInt(n, 10));
-  return {
-    heure: hour,
-    minute: minute,
-    seconde: 0
-  };
+    if (!input || input.value.trim() === "") {
+        console.error("Données invalides pour être parsé");
+        return null;
+    }
+    const [hour, minute] = input.value.trim().split(':').map(n => parseInt(n, 10));
+    return {
+        heure: hour,
+        minute: minute,
+        seconde: 0
+    };
 }
 
 async function fetchESP(url, data = null) {
-  const options = data
-    ? {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(data)
-      }
-    : { method: "GET" };
+    const options = data
+        ? {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(data)
+          }
+        : { method: "GET" };
 
-  try {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP ! ${response.status}`);
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP ! ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        console.log("Réponse du serveur : ", responseData);
+        // Ajout d'une propriété `success` pour simplifier la vérification
+        return { ...responseData, success: true };
+    } catch (err) {
+        console.error("Erreur lors du fetch avec l'esp !", err);
+        return { success: false, error: err.message };
     }
-
-    const responseData = await response.json();
-    console.log("Réponse du serveur : ", responseData);
-    return responseData;
-  } catch (err) {
-    console.error("Erreur lors du fetch avec l'esp !", err);
-    return null;
-  }
 }

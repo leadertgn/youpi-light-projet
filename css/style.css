@@ -18,16 +18,16 @@
 
 /* Les cartes de la page d'accueil */
 .card {
-    background-color: #ffffff;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px var(--shadow-color);
-    text-align: center;
-    height: 100%; /* Assure que les cartes ont la même hauteur */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+background-color: var(--card-bg-color); /* Utilise la nouvelle variable */
+border: 1px solid var(--border-color);
+border-radius: 8px;
+padding: 2rem;
+box-shadow: 0 4px 6px var(--shadow-color);
+text-align: center;
+height: 100%;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
 }
 
 .card h3 {
@@ -90,17 +90,16 @@ select {
 
 /* Styles de base pour les cartes de formulaire */
 .form-card {
-    background-color: #ffffff;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 6px var(--shadow-color);
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+background-color: var(--card-bg-color); /* Utilise la nouvelle variable */
+border: 1px solid var(--border-color);
+border-radius: 8px;
+padding: 2rem;
+margin-bottom: 2rem;
+box-shadow: 0 4px 6px var(--shadow-color);
+display: flex;
+flex-direction: column;
+gap: 1.5rem;
 }
-
 /* Styles pour les groupes de contrôles (select) */
 .calendar-controls {
     display: flex;
@@ -356,17 +355,17 @@ select {
 
 /* Conteneur pour les boutons d'action */
 .settings-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    width: 100%;
-    max-width: 500px; /* Limite la largeur du conteneur lui-même */
-    margin: 2rem auto; /* Centre le conteneur */
-    box-shadow: 0 4px 6px var(--shadow-color); /* Ajoute de l'ombre pour le style */
-    border-radius: 8px; /* Ajoute des bords arrondis */
-    background-color: #ffffff;
+display: flex;
+justify-content: center;
+gap: 1.5rem;
+padding: 1.5rem;
+margin-bottom: 2rem;
+width: 100%;
+max-width: 500px;
+margin: 2rem auto;
+box-shadow: 0 4px 6px var(--shadow-color);
+border-radius: 8px;
+background-color: var(--card-bg-color); /* Utilise la nouvelle variable */
 }
 
 .settings-actions button {
@@ -424,4 +423,9 @@ select {
         gap: 1rem;
         padding: 1.5rem;
     }
+}
+
+.card:hover {
+    transform: translateY(-3px); /* Petit mouvement vers le haut */
+    box-shadow: 0 4px 8px var(--shadow-color); /* Ombre plus prononcée */
 }
