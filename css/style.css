@@ -1,5 +1,3 @@
-
-/* Styles spécifiques à la page d'accueil (pour éviter les conflits) */
 /* Styles spécifiques à la page d'accueil */
 .page-accueil .content {
     display: flex;
@@ -7,7 +5,6 @@
     align-items: center;
 }
 
-/* Grille de cartes pour la page d'accueil */
 .home-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -16,18 +13,23 @@
     max-width: 900px;
 }
 
-/* Les cartes de la page d'accueil */
 .card {
-background-color: var(--card-bg-color); /* Utilise la nouvelle variable */
-border: 1px solid var(--border-color);
-border-radius: 8px;
-padding: 2rem;
-box-shadow: 0 4px 6px var(--shadow-color);
-text-align: center;
-height: 100%;
-display: flex;
-flex-direction: column;
-justify-content: space-between;
+    background-color: var(--card-bg-color);
+    border: none;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px var(--hover-shadow-color);
 }
 
 .card h3 {
@@ -37,9 +39,9 @@ justify-content: space-between;
 }
 
 .time-display {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--text-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
     margin-top: 1rem;
     display: flex;
     justify-content: center;
@@ -47,7 +49,7 @@ justify-content: space-between;
     gap: 0.5rem;
 }
 
-/* Styles pour les éléments de formulaire */
+/* Styles des éléments de formulaire */
 .settings-group {
     display: flex;
     flex-direction: column;
@@ -58,49 +60,51 @@ justify-content: space-between;
 
 label {
     font-weight: 600;
-    color: var(--secondary-color);
+    color: var(--text-color);
 }
 
 select {
-    padding: 0.5rem;
+    padding: 0.75rem;
     border: 1px solid var(--border-color);
-    border-radius: 5px;
+    border-radius: 8px;
     background-color: #fff;
     cursor: pointer;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.2);
 }
 
 .version {
     font-size: 0.9rem;
     color: var(--secondary-color);
     text-align: right;
-    margin-top: auto; /* Pousse la version tout en bas */
+    margin-top: auto;
 }
 
 /* --- Media Query pour le Responsive Design --- */
-
 @media (max-width: 600px) {
     .home-card-grid {
         grid-template-columns: 1fr;
     }
 }
 
-
-
 /* --- Styles de la page Calendrier --- */
-
-/* Styles de base pour les cartes de formulaire */
 .form-card {
-background-color: var(--card-bg-color); /* Utilise la nouvelle variable */
-border: 1px solid var(--border-color);
-border-radius: 8px;
-padding: 2rem;
-margin-bottom: 2rem;
-box-shadow: 0 4px 6px var(--shadow-color);
-display: flex;
-flex-direction: column;
-gap: 1.5rem;
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
-/* Styles pour les groupes de contrôles (select) */
+
 .calendar-controls {
     display: flex;
     justify-content: center;
@@ -114,100 +118,149 @@ gap: 1.5rem;
     gap: 0.5rem;
 }
 
-/* Styles des fieldsets */
 .form-fieldset {
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 12px;
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .form-fieldset legend {
     font-weight: 600;
     color: var(--primary-color);
     padding: 0 0.5rem;
+    font-size: 1.2rem;
 }
 
-/* Styles des inputs et selects */
 .form-card input[type="time"],
 .form-card select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 1rem;
     background-color: #f8f9fa;
+    transition: all 0.2s ease;
 }
 
-/* Styles des labels */
+.form-card input[type="time"]:focus,
+.form-card select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.2);
+}
+
 .form-card label {
     font-weight: 500;
     color: var(--text-color);
 }
 
-/* Style spécifique pour la case à cocher personnalisée */
 .checkbox-label {
     display: flex;
     align-items: center;
     cursor: pointer;
     gap: 0.5rem;
+    user-select: none;
 }
 
 .checkbox-label input[type="checkbox"] {
-    display: none; /* Cache la case à cocher par défaut */
+    display: none;
 }
 
 .custom-checkbox {
     width: 20px;
     height: 20px;
     border: 2px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: 6px;
     display: inline-block;
     position: relative;
-    transition: background-color 0.2s, border-color 0.2s;
+    transition: all 0.2s ease;
 }
 
 .checkbox-label input[type="checkbox"]:checked + .custom-checkbox {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
+    transform: scale(1.1);
 }
 
 .checkbox-label input[type="checkbox"]:checked + .custom-checkbox::after {
-    content: '';
+    content: '✓';
+    color: #fff;
     position: absolute;
-    left: 6px;
-    top: 2px;
-    width: 5px;
-    height: 10px;
-    border: solid #fff;
-    border-width: 0 3px 3px 0;
-    transform: rotate(45deg);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    font-weight: bold;
 }
 
-/* Style pour les boutons */
 .form-card button {
-    align-self: flex-start; /* Aligne le bouton à gauche */
-    padding: 0.75rem 1.5rem;
+    align-self: flex-start;
 }
 
-/* Media Queries pour le responsive design */
 @media (max-width: 600px) {
     .calendar-controls {
         flex-direction: column;
         align-items: center;
     }
-
     .form-card {
         padding: 1.5rem;
     }
 }
 
+/* --- Styles pour la section calendrier d'affichage --- */
+.configurations-container {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background-color: var(--card-bg-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.calendar-card {
+    margin-bottom: 1.5rem;
+}
+
+.calendar-card h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.calendar-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.calendar-card li {
+    background-color: var(--background-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-card li:hover {
+    background-color: var(--border-color);
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--secondary-color);
+    font-style: italic;
+    padding: 2rem 0;
+}
 
 /* --- Styles de la page Manuel --- */
-
-/* Mise en page des cartes de sortie */
 .page-manuel .content {
     display: flex;
     flex-direction: column;
@@ -230,6 +283,13 @@ gap: 1.5rem;
     justify-content: center;
     text-align: center;
     padding: 2rem;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.output-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px var(--hover-shadow-color);
 }
 
 .output-card h3 {
@@ -238,134 +298,95 @@ gap: 1.5rem;
     color: var(--text-color);
 }
 
-/* Indicateur d'état */
 .output-state {
     font-size: 1.2rem;
     margin-bottom: 1.5rem;
+    font-weight: 500;
 }
 
 .output-state span {
     font-weight: 700;
+    color: var(--primary-color);
 }
 
-/* Boutons de contrôle */
 .output-button {
     padding: 0.75rem 2.5rem;
     font-size: 1.1rem;
     font-weight: 600;
     width: 100%;
     max-width: 200px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
+    transition: all 0.3s ease;
 }
 
-.output-button:active {
-    transform: scale(0.98);
-}
-
-/* Couleurs des boutons ON/OFF (à gérer avec JavaScript) */
 .output-button.is-on {
-    background-color: #28a745; /* Vert pour ON */
-    color: #fff;
+    background-color: var(--success-color);
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
+}
+
+.output-button.is-on:hover {
+    background-color: #218838;
+    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+    transform: translateY(-2px);
 }
 
 .output-button.is-off {
-    background-color: #dc3545; /* Rouge pour OFF */
-    color: #fff;
-}
-/* ... (le reste de ton code CSS) ... */
-
-/* --- Media Queries pour le Responsive Design --- */
-
-/* Applique ces styles si la largeur de l'écran est de 600px ou moins */
-@media (max-width: 600px) {
-    /* Cache la barre latérale par défaut sur mobile */
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    /* Affiche la barre latérale quand elle est active */
-    .sidebar.active {
-        transform: translateX(0);
-    }
-    
-    /* Le contenu principal prend toute la largeur */
-    .page-container {
-        grid-template-columns: 1fr;
-    }
-
-    /* Styles spécifiques à la page du Mode Manuel sur mobile */
-    .page-manuel .content {
-        padding: 1rem; /* Diminue l'espace intérieur sur les petits écrans */
-    }
-    
-    .output-grid {
-        /* Les cartes se superposent en une seule colonne */
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-
-    .output-card {
-        padding: 1.5rem; /* Diminue la taille des cartes pour les petits écrans */
-    }
-    
-    .output-card h3 {
-        font-size: 1.5rem;
-    }
-    
-    .output-state {
-        font-size: 1rem;
-    }
+    background-color: var(--error-color);
+    box-shadow: 0 4px 6px rgba(220, 53, 69, 0.3);
 }
 
-
+.output-button.is-off:hover {
+    background-color: #c82333;
+    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+    transform: translateY(-2px);
+}
 
 /* --- Styles pour la page Paramètre --- */
-/* ... (le reste de ton code CSS pour la page parametre) ... */
-
-/* Conteneur pour le champ de mot de passe et l'icône */
 .password-group {
-    position: relative; /* Indispensable pour positionner l'icône */
+    position: relative;
 }
 
 .password-group input {
-    padding-right: 3rem; /* Espace pour l'icône */
+    padding-right: 3rem;
 }
 
-/* Styles pour l'icône d'affichage/masquage du mot de passe */
 .password-toggle {
     position: absolute;
-    right: 1rem; /* Place l'icône à droite */
+    right: 1rem;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
     color: var(--secondary-color);
+    transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
 }
 
 .password-toggle .icon-hide {
-    display: none; /* Cache l'icône "œil barré" par défaut */
+    display: none;
 }
 
 .password-toggle.visible .icon-show {
-    display: none; /* Cache l'icône "œil ouvert" quand le mot de passe est visible */
+    display: none;
 }
 
 .password-toggle.visible .icon-hide {
-    display: block; /* Affiche l'icône "œil barré" */
+    display: block;
 }
 
-/* Conteneur pour les boutons d'action */
 .settings-actions {
-display: flex;
-justify-content: center;
-gap: 1.5rem;
-padding: 1.5rem;
-margin-bottom: 2rem;
-width: 100%;
-max-width: 500px;
-margin: 2rem auto;
-box-shadow: 0 4px 6px var(--shadow-color);
-border-radius: 8px;
-background-color: var(--card-bg-color); /* Utilise la nouvelle variable */
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 500px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border-radius: 12px;
+    background-color: var(--card-bg-color);
 }
 
 .settings-actions button {
@@ -376,8 +397,6 @@ background-color: var(--card-bg-color); /* Utilise la nouvelle variable */
     width: 100%;
 }
 
-
-/* Styles pour les modals (les sections de formulaire) */
 .page-parametre .modal {
     margin: auto;
     width: 100%;
@@ -405,8 +424,15 @@ background-color: var(--card-bg-color); /* Utilise la nouvelle variable */
 .page-parametre .modal .form-group input {
     padding: 0.75rem;
     border: 1px solid var(--border-color);
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.page-parametre .modal .form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.2);
 }
 
 .page-parametre .modal button {
@@ -415,17 +441,10 @@ background-color: var(--card-bg-color); /* Utilise la nouvelle variable */
     padding: 0.75rem;
 }
 
-
-/* Media Query pour la version mobile */
 @media (max-width: 600px) {
     .settings-actions {
         flex-direction: column;
         gap: 1rem;
         padding: 1.5rem;
     }
-}
-
-.card:hover {
-    transform: translateY(-3px); /* Petit mouvement vers le haut */
-    box-shadow: 0 4px 8px var(--shadow-color); /* Ombre plus prononcée */
 }
