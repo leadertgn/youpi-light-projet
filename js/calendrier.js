@@ -1,5 +1,6 @@
 // Définition des URLs centralisées
 const apiUrls = {
+    getCalendarConfigs: () => `/getCalendarConfigs`,
     getSaveState: (sortie) => `/getSaveState/sortie-${sortie}`,
     setSaveState: (sortie) => `/save/sortie-${sortie}`,
     sendCalendar: (sortie, tache) => `/sortie-${sortie}/tache-${tache}`
@@ -27,23 +28,29 @@ function showLoadingState(button, isLoading) {
     }
 }
 
+function updateButtonText(button, text) {
+    button.textContent = text;
+}
+
 function updateTextContent(element, text) {
     element.textContent = text;
 }
 
 // Fonctions spécialisées pour les requêtes API
 const api = {
+    async getCalendarConfigs() {
+        const url = apiUrls.getCalendarConfigs();
+        return await fetchESP(url);
+    },
     async getSaveState(sortie) {
         const url = apiUrls.getSaveState(sortie);
         return await fetchESP(url);
     },
-
     async setSaveState(sortie, choice) {
         const url = apiUrls.setSaveState(sortie);
         const data = { save: choice };
         return await fetchESP(url, data);
     },
-
     async sendCalendar(sortie, tache, calendarData) {
         const url = apiUrls.sendCalendar(sortie, tache);
         return await fetchESP(url, calendarData);
@@ -64,22 +71,23 @@ const calendarMessageEl = document.getElementById('calendar-message');
 const saveMessageEl = document.getElementById('save-message');
 const sendCalendarBtn = document.getElementById('send-calendar-btn');
 const sendSaveBtn = document.getElementById('send-save-btn');
-
+const configurationsContainer = document.getElementById('configurations-container');
+const refreshCalendarBtn = document.getElementById('refresh-calendar-btn');
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 🔄 Initialisation au chargement
+    // Initialisation au chargement
     const selectedSortie = sortieEL.value;
     updateTextContent(selectedOutputSpan, sortieEL.options[sortieEL.selectedIndex].text);
     updateSaveStateUI(selectedSortie);
-    
-    // 🧭 Écoute de changement de sortie
+    updateCalendarConfigsUI(); // Afficher les configurations au démarrage
+
+    // Écoute des événements
     sortieEL.addEventListener('change', (e) => {
         const sortieChoice = e.target.value;
         updateTextContent(selectedOutputSpan, sortieEL.options[sortieEL.selectedIndex].text);
         updateSaveStateUI(sortieChoice);
     });
 
-    // 📅 Soumission du formulaire de tâche
     calendarFormEl.addEventListener('submit', async (e) => {
         e.preventDefault();
         showLoadingState(sendCalendarBtn, true);
@@ -96,12 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response && response.success) {
             showFeedbackMessage(calendarMessageEl, "Réglage de la tâche envoyé avec succès !", "success");
             calendarFormEl.reset();
+            updateCalendarConfigsUI(); // Mettre à jour l'affichage après un envoi réussi
         } else {
             showFeedbackMessage(calendarMessageEl, "Échec de l'envoi du réglage de la tâche.", "error");
         }
     });
 
-    // 💾 Soumission du formulaire de sauvegarde
     saveFormEl.addEventListener('submit', async (e) => {
         e.preventDefault();
         showLoadingState(sendSaveBtn, true);
@@ -118,6 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
             showFeedbackMessage(saveMessageEl, "Échec de la mise à jour de l'état de sauvegarde.", "error");
         }
     });
+
+    refreshCalendarBtn.addEventListener('click', () => {
+        updateCalendarConfigsUI();
+        showFeedbackMessage(calendarMessageEl, "Configurations actualisées.", "success");
+    });
 });
 
 // Fonctions pour gérer la mise à jour de l'interface utilisateur
@@ -132,6 +145,43 @@ async function updateSaveStateUI(sortie) {
         updateTextContent(saveChoiceLabel, "---");
         console.error(`Impossible de récupérer l'état de sauvegarde pour la sortie ${sortie}`);
     }
+}
+
+async function updateCalendarConfigsUI() {
+    const configsResponse = await api.getCalendarConfigs();
+    if (configsResponse.success && configsResponse.data) {
+        renderCalendarConfigs(configsResponse.data);
+    } else {
+        configurationsContainer.innerHTML = `<p class="empty-state">Échec du chargement des configurations.</p>`;
+    }
+}
+
+function renderCalendarConfigs(configs) {
+    let htmlContent = '';
+    const hasConfigs = Object.values(configs).some(sortieConfigs => Object.values(sortieConfigs).some(config => config.allumage.heure !== 255));
+
+    if (!hasConfigs) {
+        configurationsContainer.innerHTML = `<p class="empty-state">Aucune configuration de calendrier n'est active pour le moment.</p>`;
+        return;
+    }
+
+    for (const [sortieKey, taches] of Object.entries(configs)) {
+        htmlContent += `<div class="card calendar-card"><h3>${sortieKey.charAt(0).toUpperCase() + sortieKey.slice(1)}</h3><ul>`;
+        for (const [tacheKey, config] of Object.entries(taches)) {
+            // L'ESP envoie 255 pour indiquer une tâche vide.
+            if (config.allumage.heure !== 255) {
+                const onTime = formatTime(config.allumage.heure, config.allumage.minute);
+                const offTime = formatTime(config.extinction.heure, config.extinction.minute);
+                htmlContent += `<li><strong>${tacheKey.charAt(0).toUpperCase() + tacheKey.slice(1)}:</strong> Allumage à ${onTime}, Extinction à ${offTime}</li>`;
+            }
+        }
+        htmlContent += `</ul></div>`;
+    }
+    configurationsContainer.innerHTML = htmlContent;
+}
+
+function formatTime(h, m) {
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 }
 
 function parseInputTime(time) {
